@@ -1,61 +1,31 @@
-## Tactical Optimistic and Pessimistic estimation (TOP)
+## Reproducing Tactical Optimistic and Pessimistic estimation (TOP) paper
 
-Reproducing the results shown in the Figure 2,3 of the paper[Tactical Optimism and Pessimism for Deep Reinforcement Learning](https://arxiv.org/abs/2102.03765). The tasks are HalfCheetah-v2 and Hopper-v2
+Reproducing the results shown in the Figure 2,3 of the paper [Tactical Optimism and Pessimism for Deep Reinforcement Learning](https://arxiv.org/abs/2102.03765). The tasks are HalfCheetah-v2 and Hopper-v2 from Mujoco simulation library. 
 
 
-### Installation
----
-First login to the desired GPU node and then create a specific conda environment for that:
+### Installation:
+--- 
 
-```python
-$ conda env create -f conda_environment.yaml
-```
-Then clone the github repo:
+First, log in to the desired GPU node and create the conda environment:
 
-```python
-$ cd TOP/mujoco
+```bash
+12345678@ppti-gpu-3 $ conda env create -f conda_environment.yaml
+12345678@ppti-gpu-3 $ source conda.sh
+12345678@ppti-gpu-3 $ conda activate TOP_Mujoco
 ```
 
 
+Then clone the github repo and cd to the mujoco tasks folder:
 
-
-
-
-
-
-Implementation of TOP, an off-policy deep actor-critic framework for continuous control, from our paper 
-
-![](extras/ant.gif)
-
-
-
-**Running Mujoco:**
-
-```python
-python train_top_agent.py
+```bash
+(TOP_Mujoco) 12345678@ppti-gpu-3 $ git clone https://github.com/samasat5/TOP_Reproduce.git
+(TOP_Mujoco) 12345678@ppti-gpu-3 $ cd TOP/mujoco
 ```
+Then run the ```train_top_agent.py``` file:
 
-We've also included the saved runs across 10 seeds for each environment from the paper in the ```runs``` folder. Each file contains the reward curves used for Figure 3, and is structured as a 10 x 1000 matrix, with each row representing a different seed. 
-
-TOP-TD3 is built on top of the fantastic [TD3 implementation](https://github.com/fiorenza2/TD3_PyTorch) by Philip Ball. 
-
-**Running DM Control Suite**
-
-```python
-python top_train.py
+```bash
+(TOP_Mujoco) 12345678@ppti-gpu-3:~/TOP/mujoco$ python train_top_agent.py --env HalfCheetah-v3 --seed 0 --fixed_beta 0 # for Optimistic run, for pessimistic run: --fixed_beta -1
 ```
-
-TOP-RAD is built on top of the original [RAD implementation](https://github.com/MishaLaskin/rad) by Misha Laskin--the majority of the files are unchanged from the original repository. 
-
-We plan to add the saved training data from the DM Control experiments (as we have for the Mujoco experiments) soon! 
+ 
 
 
-
-Requirements:
-
-- [PyTorch](https://pytorch.org/) >= 1.6.0
-- [Tensorboard](https://www.tensorflow.org/tensorboard)
-- [Mujoco_py](https://github.com/openai/mujoco-py) >= 2.0.2.13 (Mujoco only)
-- [OpenAI Gym](https://gym.openai.com/) >= 0.15.7 
-- [DM Control suite](https://github.com/deepmind/dm_control) (DM Control only)
-- [dmc2gym](https://github.com/denisyarats/dmc2gym) (DM Control only)
