@@ -50,3 +50,10 @@ Then run the ```train_top_agent.py``` file:
 ---
  
 Each training run writes TensorBoard logs under: ```dope_runs/DOPE_<ENV>_nq<N>_<bandit_lr>_seed<SEED>/```. Inside that folder you’ll see one or more TensorBoard event files named like: ```events.out.tfevents.<timestamp>.<host>.<pid>.0```
+
+```bash
+(TOP_Mujoco) 12345678@ppti-gpu-3:~/TOP/mujoco$ python export_csv_plot
+  --logdir /path/to/run_beta0 /path/to/run_beta-1 \
+  --labels "Optimistic (β=0)" "Pessimistic (β=-1)" \
+  --out-png top_fixedbeta.png --out-csv top_fixedbeta.csv
+```
