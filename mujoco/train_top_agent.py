@@ -15,7 +15,7 @@ from utils import MeanStdevFilter, Transition, make_gif, make_checkpoint
 
 GYM_ENV = gym.wrappers.time_limit.TimeLimit
 
-def train_agent_model_free(agent: DOPE_Agent, env: GYM_ENV, params: Dict) -> None:
+def train_agent_model_free(agent: TOP_Agent, env: GYM_ENV, params: Dict) -> None:
     
     update_timestep = params['update_every_n_steps']
     seed = params['seed']
@@ -68,7 +68,13 @@ def train_agent_model_free(agent: DOPE_Agent, env: GYM_ENV, params: Dict) -> Non
         done = False
 
         # sample an optimism setting for this episode
-        optimism = agent.TDC.sample()
+        # optimism = agent.TDC.sample()
+        # SAMA
+        if params.get('fixed_beta') is None:
+            optimism = agent.TDC.sample()   # bandit chooses between -1 and 0
+        else:
+            optimism = float(params['fixed_beta'])   # force β = -1 or β = 0
+
 
         while (not done):
             cumulative_log_timestep += 1
@@ -135,7 +141,7 @@ def train_agent_model_free(agent: DOPE_Agent, env: GYM_ENV, params: Dict) -> Non
 
 def evaluate_agent(
     env: GYM_ENV,
-    agent: DOPE_Agent,
+    agent: TOP_Agent,
     state_filter: Callable,
     n_starts: int = 1) -> float:
     
@@ -166,6 +172,10 @@ def main():
     parser.add_argument('--bandit_lr', type=float, default=0.1)
     parser.set_defaults(obs_filter=False)
     parser.set_defaults(save_model=False)
+    
+    # SAMA:
+    parser.add_argument('--fixed_beta', type=float, choices=[-1.0, 0.0], default=None,
+                    help='Set β to a fixed value (-1 for pessimistic, 0 for optimistic). If None, use bandit.')
 
     args = parser.parse_args()
     params = vars(args)
@@ -178,7 +188,7 @@ def main():
     action_dim = env.action_space.shape[0]
 
     # initialize agent
-    agent = DOPE_Agent(seed, state_dim, action_dim, \
+    agent = TOP_Agent(seed, state_dim, action_dim, \
         n_quantiles=params['n_quantiles'], bandit_lr=params['bandit_lr'])
 
     # train agent 
