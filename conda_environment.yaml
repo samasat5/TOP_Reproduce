@@ -1,0 +1,103 @@
+name: TOP_Mujoco
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  # ---- Core language ----
+  - python=3.9
+  - pip
+  - setuptools
+  - wheel
+
+  # ---- System / OpenGL dependencies ----
+  - glew=2.2.0
+  - glfw
+  - patchelf
+  - libgl
+  - libglu
+  - libglvnd
+  - libxcb
+  - xorg-libx11
+  - xorg-libxrender
+  - xorg-libxfixes
+  - xorg-libxext
+  - xorg-libxi
+  - xorg-libxrandr
+  - xorg-libxinerama
+  - xorg-libxau
+  - xorg-libxdmcp
+  - xorg-libxcursor
+  - xorg-libxkbcommon
+  - xkeyboard-config
+
+  # ---- Basic utilities ----
+  - ca-certificates
+  - openssl
+  - certifi
+  - ncurses
+  - readline
+  - tk
+  - zlib
+  - zstd
+
+  # ---- Python packages via pip ----
+  - pip:
+      # PyTorch (CUDA 11.8)
+      - torch==2.1.2+cu118
+      - torchvision==0.16.2+cu118
+      - triton==2.1.0
+      - --extra-index-url https://download.pytorch.org/whl/cu118
+
+      # Core scientific stack
+      - numpy==1.22.4
+      - sympy==1.14.0
+      - mpmath==1.3.0
+
+      # RL / Environments
+      - gym==0.23.1
+      - gym-notices==0.1.0
+      - mujoco-py==2.1.2.14
+      - cloudpickle==3.1.1
+
+      # Video / I/O helpers
+      - moviepy==1.0.3
+      - imageio==2.9.0
+      - imageio-ffmpeg==0.4.3
+      - pillow==11.3.0
+      - tqdm==4.67.1
+      - proglog==0.1.12
+      - fasteners==0.20
+      - filelock==3.19.1
+      - fsspec==2025.9.0
+
+      # TensorBoard
+      - tensorboard==2.20.0
+      - tensorboard-data-server==0.7.2
+      - markdown==3.9
+      - werkzeug==3.1.3
+      - absl-py==2.3.1
+      - grpcio==1.76.0
+      - protobuf==6.33.0
+
+      # Utilities
+      - jinja2==3.1.6
+      - markupsafe==3.0.3
+      - packaging==25.0
+      - typing-extensions==4.15.0
+      - networkx==3.2.1
+      - importlib-metadata==8.7.0
+      - zipp==3.23.0
+
+      # Networking
+      - requests==2.32.5
+      - urllib3==2.5.0
+      - idna==3.11
+      - charset-normalizer==3.4.4
+
+      # Build / C extensions (for mujoco-py)
+      - cython==0.29.37
+      - cffi==2.0.0
+      - pycparser==2.23
+
+      # OpenGL windowing (Python wheel)
+      - glfw==2.10.0

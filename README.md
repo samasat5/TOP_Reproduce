@@ -1,6 +1,29 @@
 ## Tactical Optimistic and Pessimistic estimation (TOP)
 
-Implementation of TOP, an off-policy deep actor-critic framework for continuous control, from our paper [Tactical Optimism and Pessimism for Deep Reinforcement Learning](https://arxiv.org/abs/2102.03765). 
+Reproducing the results shown in the Figure 2,3 of the paper[Tactical Optimism and Pessimism for Deep Reinforcement Learning](https://arxiv.org/abs/2102.03765). The tasks are HalfCheetah-v2 and Hopper-v2
+
+
+### Installation
+---
+First login to the desired GPU node and then create a specific conda environment for that:
+
+```python
+$ conda env create -f conda_environment.yaml
+```
+Then clone the github repo:
+
+```python
+$ cd TOP/mujoco
+```
+
+
+
+
+
+
+
+
+Implementation of TOP, an off-policy deep actor-critic framework for continuous control, from our paper 
 
 ![](extras/ant.gif)
 
