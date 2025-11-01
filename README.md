@@ -23,6 +23,22 @@ Then clone the github repo and cd to the mujoco tasks folder:
 (TOP_Mujoco) 12345678@ppti-gpu-3 $ git clone https://github.com/samasat5/TOP_Reproduce.git
 (TOP_Mujoco) 12345678@ppti-gpu-3 $ cd TOP/mujoco
 ```
+
+
+When running MuJoCo tasks on a remote GPU node (without display), you must enable **EGL-based rendering** and make sure the system can find the MuJoCo and NVIDIA library paths.
+
+Add the following lines once:
+
+```bash
+export MUJOCO_GL=egl
+export MUJOCO_PY_MUJOCO_PATH="$HOME/.mujoco/mujoco210"
+export LD_LIBRARY_PATH="$CONDA_PREFIX/lib:$HOME/.mujoco/mujoco210/bin"
+for p in /usr/lib/nvidia /usr/lib/nvidia-* /usr/lib/x86_64-linux-gnu /usr/lib/x86_64-linux-gnu/nvidia; do
+  [ -d "$p" ] && export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$p"
+done
+export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda-12.9/lib64"
+```
+
 Then run the ```train_top_agent.py``` file:
 
 ```bash
