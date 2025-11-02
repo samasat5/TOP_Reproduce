@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# save as plot_top_from_tb.py
-
 import os, glob, csv, argparse
 from typing import List, Tuple, Optional
 import numpy as np
@@ -36,15 +33,15 @@ def export_tb_scalars(logdir: str) -> pd.DataFrame:
         raise RuntimeError(f"No scalar data found in: {logdir}")
     return df
 
-# ---------- smoothing ----------
-def ema(x: np.ndarray, alpha: float = 0.1) -> np.ndarray:
+
+def ema(x: np.ndarray, alpha: float = 0.1) -> np.ndarray: # Smoothing
     y, m = np.empty_like(x, dtype=float), 0.0
     for i, v in enumerate(x):
         m = alpha * v + (1 - alpha) * m if i else v
         y[i] = m
     return y
 
-# ---------- extract reward curve ----------
+
 def reward_curve(df: pd.DataFrame, tag="Reward/Test") -> Tuple[np.ndarray, np.ndarray]:
     r = (df[df["tag"] == tag][["step", "value"]]
          .rename(columns={"value": "reward"})
@@ -61,7 +58,40 @@ def infer_label_from_tb(df: pd.DataFrame) -> Optional[str]:
     mode = s.mode().iloc[0]
     return "Optimistic (β=0)" if mode == 0 else "Pessimistic (β=-1)" if mode == -1 else f"β={mode}"
 
-# ---------- plotting ----------
+def reward_curves_by_mode(df: pd.DataFrame,
+                          reward_tag="Reward/Test",
+                          beta_tag="Distributions/optimism"):
+    """
+    Splits Reward/Test into two curves based on most recent beta (optimism) value.
+    Returns a dict: { "Optimistic (β=0)": (steps, rewards), "Pessimistic (β=-1)": (...) }
+    """
+    # rewards
+    r = (df[df["tag"] == reward_tag][["step", "value"]]
+           .rename(columns={"value": "reward"})
+           .sort_values("step")
+           .drop_duplicates("step", keep="last"))
+    # optimism values
+    b = (df[df["tag"] == beta_tag][["step", "value"]]
+           .rename(columns={"value": "beta"})
+           .sort_values("step")
+           .drop_duplicates("step", keep="last"))
+    if r.empty or b.empty:
+        return {}
+
+    # align each reward step with the most recent beta (backward merge)
+    merged = pd.merge_asof(r, b, on="step", direction="backward")
+    merged = merged.dropna(subset=["beta"])
+    merged["mode"] = merged["beta"].round().astype(int).map({
+        -1: "Pessimistic (β=-1)",
+         0: "Optimistic (β=0)"
+    })
+
+    curves = {}
+    for name, g in merged.groupby("mode"):
+        curves[name] = (g["step"].to_numpy(), g["reward"].to_numpy())
+    return curves
+
+
 def plot_runs(
     runs: List[Tuple[str, str]], 
     alpha: float,
@@ -95,16 +125,18 @@ def plot_runs(
             tmp["source"] = os.path.basename(os.path.normpath(logdir))
             all_export_rows.append(tmp)
 
-     
-        label = maybe_label or infer_label_from_tb(df) or os.path.basename(os.path.normpath(logdir))
-
- 
-        x, y = reward_curve(df, tag="Reward/Test")
-        if len(x) == 0:
-            print(f"[warn] No Reward/Test found in {logdir}, skipping.")
+        # split automatically into optimism/pessimism curves
+        curves = reward_curves_by_mode(df)
+        if not curves:
+            print(f"[warn] Could not split by mode in {logdir}, using global Reward/Test only.")
+            x, y = reward_curve(df, tag="Reward/Test")
+            y_s = ema(y, alpha=alpha) if alpha > 0 else y
+            plt.plot(x, y_s, label=maybe_label or "Reward/Test", linewidth=3, color=colors[idx % len(colors)])
             continue
-        y_s = ema(y, alpha=alpha) if alpha > 0 else y
-        plt.plot(x, y_s, label=label, linewidth=3, color=colors[idx % len(colors)])
+
+        for j, (lbl, (x, y)) in enumerate(curves.items()):
+            y_s = ema(y, alpha=alpha) if alpha > 0 else y
+            plt.plot(x, y_s, label=lbl, linewidth=3, color=colors[(idx + j) % len(colors)])
 
     plt.xlabel("Training steps")
     plt.ylabel("Reward (smoothed)" if alpha > 0 else "Reward")
@@ -132,7 +164,7 @@ def main():
     ap.add_argument("--alpha", type=float, default=0.1, help="EMA smoothing factor in [0,1]. Use 0 to disable.")
     ap.add_argument("--out-csv", type=str, default=None, help="Optional path to save merged scalars CSV.")
     ap.add_argument("--out-png", type=str, default=None, help="Optional path to save the figure.")
-    ap.add_argument("--title", type=str, default="TOP under fixed β | HalfCheetah",
+    ap.add_argument("--title", type=str, default="TOP under fixed beta | HalfCheetah-v2  ",
                     help="Plot title.")
     args = ap.parse_args()
 
