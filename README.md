@@ -44,7 +44,7 @@ Then clone the github repo and cd to the mujoco tasks folder:
 Then run the ```train_top_agent.py``` file:
 
 ```bash
-(TOP_Mujoco) 12345678@ppti-gpu-3:~/TOP/mujoco$ python train_top_agent.py --env HalfCheetah-v3 --seed 0 --fixed_beta 0 # for Optimistic run, for pessimistic run: --fixed_beta -1
+(TOP_Mujoco) 12345678@ppti-gpu-3:~/TOP/mujoco$ python train_top_agent.py --env HalfCheetah-v2 --seed 0 --fixed_beta 0 # for Optimistic run, for pessimistic run: --fixed_beta -1
 ```
 ### Logging and Export:
 ---
